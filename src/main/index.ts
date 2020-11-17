@@ -23,6 +23,7 @@ import { appEventBus } from "../common/event-bus"
 import { extensionLoader } from "../extensions/extension-loader";
 import { extensionManager } from "../extensions/extension-manager";
 import { extensionsStore } from "../extensions/extensions-store";
+import { installDeveloperTools } from "./developer-tools";
 
 const workingDir = path.join(app.getPath("appData"), appName);
 let proxyPort: number;
@@ -48,6 +49,8 @@ app.on("ready", async () => {
   updater.start();
 
   registerFileProtocol("static", __static);
+
+  await installDeveloperTools();
 
   // preload
   await Promise.all([
