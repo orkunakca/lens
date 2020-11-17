@@ -5,6 +5,10 @@ import { WindowManager } from "../main/window-manager";
 import { getExtensionPageUrl } from "./registries/page-registry"
 
 export class LensMainExtension extends LensExtension {
+
+  /**
+   * @observable
+   */
   @observable.shallow appMenus: MenuRegistration[] = []
 
   async navigate<P extends object>(pageId?: string, params?: P, frameId?: number) {

@@ -19,6 +19,9 @@ export class ExtensionLoader {
   protected extensions = observable.map<LensExtensionId, InstalledExtension>();
   protected instances = observable.map<LensExtensionId, LensExtension>();
 
+  /**
+   * @observable
+   */
   @observable isLoaded = false;
   whenLoaded = when(() => this.isLoaded);
 
