@@ -5,21 +5,21 @@ import { machineIdSync } from "node-machine-id";
 import { telemetryPreferencesStore } from "./telemetry-preferences-store";
 
 export class Tracker extends Util.Singleton {
-  static readonly GA_ID = "UA-159377374-1"
-  static readonly SEGMENT_KEY = "YENwswyhlOgz8P7EFKUtIZ2MfON7Yxqb"
-  protected eventHandlers: Array<(ev: EventBus.AppEvent ) => void> = []
-  protected started = false
-  protected visitor: ua.Visitor
-  protected analytics: Analytics
+  static readonly GA_ID = "UA-159377374-1";
+  static readonly SEGMENT_KEY = "YENwswyhlOgz8P7EFKUtIZ2MfON7Yxqb";
+  protected eventHandlers: Array<(ev: EventBus.AppEvent) => void> = [];
+  protected started = false;
+  protected visitor: ua.Visitor;
+  protected analytics: Analytics;
   protected machineId: string = null;
   protected ip: string = null;
   protected appVersion: string;
   protected locale: string;
   protected userAgent: string;
   protected anonymousId: string;
-  protected os: string
+  protected os: string;
 
-  protected reportInterval: NodeJS.Timeout
+  protected reportInterval: NodeJS.Timeout;
 
   private constructor() {
     super();
@@ -100,30 +100,28 @@ export class Tracker extends Util.Singleton {
   }
 
   protected resolveOS() {
-    let os = "";
     if (App.isMac) {
-      os = "MacOS";
-    } else if(App.isWindows) {
-      os = "Windows";
-    } else if (App.isLinux) {
-      os = "Linux";
-      if (App.isSnap) {
-        os += "; Snap";
-      } else {
-        os += "; AppImage";
-      }
-    } else {
-      os = "Unknown";
+      return "MacOS";
     }
-    return os;
+
+    if (App.isWindows) {
+      return "Windows";
+    }
+
+    if (App.isLinux) {
+      return `Linux; ${App.isSnap ? "Snap" : "AppImage"}`;
+    }
+
+    return "Unknown";
   }
 
   protected async event(eventCategory: string, eventAction: string, otherParams = {}) {
+    const allowed = await this.isTelemetryAllowed();
+    if (!allowed) {
+      return;
+    }
+
     try {
-      const allowed = await this.isTelemetryAllowed();
-      if (!allowed) {
-        return;
-      }
       this.visitor.event({
         ec: eventCategory,
         ea: eventAction,

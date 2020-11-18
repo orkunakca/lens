@@ -1,9 +1,9 @@
 import React from "react";
 import { action, observable } from "mobx";
-import { autobind } from "../../utils";
+import { autobind, Singleton } from "./utils";
 import isObject from "lodash/isObject";
 import uniqueId from "lodash/uniqueId";
-import { JsonApiErrorParsed } from "../../api/json-api";
+import { JsonApiErrorParsed } from "../renderer/api/json-api";
 
 export type NotificationId = string | number;
 export type NotificationMessage = React.ReactNode | React.ReactNode[] | JsonApiErrorParsed;
@@ -22,16 +22,16 @@ export interface Notification {
 }
 
 @autobind()
-export class NotificationsStore {
+export class NotificationsStore extends Singleton {
   public notifications = observable<Notification>([], { deep: false });
 
-  protected autoHideTimers = new Map<NotificationId, number>();
+  protected autoHideTimers = new Map<NotificationId, NodeJS.Timeout>();
 
   addAutoHideTimer(notification: Notification) {
     this.removeAutoHideTimer(notification);
     const { id, timeout } = notification;
     if (timeout) {
-      const timer = window.setTimeout(() => this.remove(id), timeout);
+      const timer = setTimeout(() => this.remove(id), timeout);
       this.autoHideTimers.set(id, timer);
     }
   }
@@ -64,4 +64,4 @@ export class NotificationsStore {
   }
 }
 
-export const notificationsStore = new NotificationsStore();
+export const notificationsStore = NotificationsStore.getInstance<NotificationsStore>();
